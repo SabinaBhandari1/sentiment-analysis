@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Sentiment Analysis</h2>
+
+        <form action="/predict" method="post">
+            <input type="text" name="text" placeholder="Enter text here...">
+            <br>
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if prediction %}
+            <div class="result 
+                {% if prediction == 'Positive' %}positive
+                {% elif prediction == 'Negative' %}negative
+                {% else %}neutral{% endif %}">
+                Result: {{ prediction }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
