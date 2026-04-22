@@ -4,6 +4,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.utils.class_weight import compute_class_weight
 from flask import Flask, request, render_template
 
 app = Flask(__name__)
@@ -16,7 +17,7 @@ def clean_text(data):
     return data
 
 # Vectorize
-vectorizer = TfidfVectorizer()
+vectorizer = TfidfVectorizer(max_features=5000)
 
 # Split FIRST
 X_train, X_test, y_train, y_test = train_test_split(
@@ -27,12 +28,17 @@ X_train, X_test, y_train, y_test = train_test_split(
 X_train = vectorizer.fit_transform(X_train)
 X_test = vectorizer.transform(X_test)  # only transform, not fit
 
+# Balance classes - give more weight to underrepresented classes
+class_weights = compute_class_weight('balanced', classes=np.unique(y_train), y=y_train)
+class_weight_dict = {i: class_weights[i] for i in range(len(class_weights))}
+
 # Train model
-model = MultinomialNB()
+model = MultinomialNB(alpha=1.0)
 model.fit(X_train, y_train)
 
 # Accuracy
 print("Accuracy:", model.score(X_test, y_test))
+print("Class distribution:", data["category"].value_counts())
 
 @app.route("/")
 def home():
